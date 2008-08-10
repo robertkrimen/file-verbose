@@ -23,6 +23,8 @@ Test::Most
 _END_
 
     map { my ($pk, $vr) = split m/\s/; requires $pk => $vr || 0 } grep { ! /^\s*#/ } split m/\n/, <<_END_;
+Carp::Clan
+Context::Preserve
 _END_
 }
 
