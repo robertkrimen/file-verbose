@@ -21,7 +21,7 @@ use vars qw/@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS/;
 @EXPORT_OK = qw/rename/;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-use Carp;
+use Carp::Clan qw/^(?:File::Verbose|Context::Preserve)/;
 use Exporter;
 use Context::Preserve;
 
