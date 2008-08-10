@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-File::Verbose - The great new File::Verbose!
+File::Verbose -
 
 =head1 VERSION
 
@@ -15,37 +15,20 @@ Version 0.01
 
 our $VERSION = '0.01';
 
+use vars qw/@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS/;
 
-=head1 SYNOPSIS
+@ISA = qw/Exporter/;
+@EXPORT_OK = qw/rename/;
+$EXPORT_TAGS{all} = \@EXPORT_OK;
 
-Quick summary of what the module does.
+use Carp;
+use Exporter;
 
-Perhaps a little code snippet.
 
-    use File::Verbose;
+sub rename {
+    my ($from, $to) = @_;
 
-    my $foo = File::Verbose->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 FUNCTIONS
-
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
+    rename $from, $to or warn "rename($from, $to): $!";
 }
 
 =head1 AUTHOR
