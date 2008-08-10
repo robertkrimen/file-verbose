@@ -23,12 +23,16 @@ $EXPORT_TAGS{all} = \@EXPORT_OK;
 
 use Carp;
 use Exporter;
-
+use Context::Preserve;
 
 sub rename {
     my ($from, $to) = @_;
 
-    rename $from, $to or warn "rename($from, $to): $!";
+    return preserve_context {
+        CORE::rename $from, $to
+    }
+    after => sub { $_[0] or carp "rename($from, $to): $!" }
+    ;
 }
 
 =head1 AUTHOR
