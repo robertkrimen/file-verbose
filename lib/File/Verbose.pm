@@ -25,14 +25,25 @@ use Carp::Clan qw/^(?:File::Verbose|Context::Preserve)/;
 use Exporter;
 use Context::Preserve;
 
-sub rename {
-    my ($from, $to) = @_;
+my %CORE = (
+    rename => sub { return CORE::rename $_[0], $_[1] },
+    symlink => sub { return CORE::symlink $_[0], $_[1] },
+    link => sub { return CORE::link $_[0], $_[1] },
+);
 
-    return preserve_context {
-        CORE::rename $from, $to
-    }
-    after => sub { $_[0] or carp "rename($from, $to): $!" }
-    ;
+for my $function (qw/rename symlink link/) {
+    no strict 'refs';
+    my $CORE_function = $CORE{$function};
+    *$function = sub {
+        my ($from, $to) = @_;
+
+        local $! = undef;
+        return preserve_context {
+            return $CORE_function->($from, $to);
+        }
+        after => sub { $_[0] or ! $! or carp "$function($from, $to): $!" }
+        ;
+    };
 }
 
 =head1 AUTHOR
