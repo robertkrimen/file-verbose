@@ -15,21 +15,22 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-use vars qw/@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS/;
-
-@ISA = qw/Exporter/;
-@EXPORT_OK = qw/rename/;
-$EXPORT_TAGS{all} = \@EXPORT_OK;
-
-use Carp::Clan qw/^(?:File::Verbose|Context::Preserve)/;
-use Exporter;
-use Context::Preserve;
-
 my %CORE = (
     rename => sub { return CORE::rename $_[0], $_[1] },
     symlink => sub { return CORE::symlink $_[0], $_[1] },
     link => sub { return CORE::link $_[0], $_[1] },
 );
+
+use vars qw/@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS/;
+
+@ISA = qw/Exporter/;
+@EXPORT_OK = map { ($_, "${_}z") } keys %CORE;
+$EXPORT_TAGS{all} = \@EXPORT_OK;
+
+use Carp::Clan qw/^(?:File::Verbose|Context::Preserve)/;
+use Exporter;
+use Context::Preserve;
+use Path::Class;
 
 for my $function (qw/rename symlink link/) {
     no strict 'refs';
@@ -43,6 +44,19 @@ for my $function (qw/rename symlink link/) {
         }
         after => sub { $_[0] or ! $! or carp "$function($from, $to): $!" }
         ;
+    };
+
+    my $functionz = "${function}z";
+    *$functionz = sub {
+        my ($from, $to) = @_;
+
+        return if -e $to;
+
+        my $dir = (file $to)->parent;
+        $dir->mkpath unless -d $dir;
+
+
+        *$function->($from, $to);
     };
 }
 
